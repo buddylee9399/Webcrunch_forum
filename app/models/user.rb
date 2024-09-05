@@ -24,14 +24,20 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
-    after_create :assign_default_role
-    def assign_default_role
-      if User.count == 1
-        self.add_role(:site_admin) if self.roles.blank?
-        self.add_role(:admin)
-        self.add_role(:customer)      
-      else
-        self.add_role(:customer) if self.roles.blank?
-      end
-    end  
+  has_many :discussions, dependent: :destroy
+  has_many :channels, through: :discussions  
+  def username
+    email.split('@')[0]
+  end  
+  after_create :assign_default_role
+  def assign_default_role
+    if User.count == 1
+      self.add_role(:site_admin) if self.roles.blank?
+      self.add_role(:admin)
+      self.add_role(:customer)      
+    else
+      self.add_role(:customer) if self.roles.blank?
+    end
+  end  
+
 end

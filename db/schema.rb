@@ -10,7 +10,51 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_09_05_001652) do
+ActiveRecord::Schema[7.0].define(version: 2024_09_05_010417) do
+  create_table "channels", force: :cascade do |t|
+    t.string "channel"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "slug"
+    t.index ["slug"], name: "index_channels_on_slug", unique: true
+  end
+
+  create_table "discussions", force: :cascade do |t|
+    t.string "title"
+    t.text "content"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "channel_id", null: false
+    t.string "slug"
+    t.index ["channel_id"], name: "index_discussions_on_channel_id"
+    t.index ["slug"], name: "index_discussions_on_slug", unique: true
+    t.index ["user_id"], name: "index_discussions_on_user_id"
+  end
+
+  create_table "friendly_id_slugs", force: :cascade do |t|
+    t.string "slug", null: false
+    t.integer "sluggable_id", null: false
+    t.string "sluggable_type", limit: 50
+    t.string "scope"
+    t.datetime "created_at"
+    t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
+    t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
+    t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
+  end
+
+  create_table "replies", force: :cascade do |t|
+    t.text "reply"
+    t.integer "discussion_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "slug"
+    t.index ["discussion_id"], name: "index_replies_on_discussion_id"
+    t.index ["slug"], name: "index_replies_on_slug", unique: true
+    t.index ["user_id"], name: "index_replies_on_user_id"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.string "name"
     t.string "resource_type"
@@ -44,4 +88,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_09_05_001652) do
     t.index ["user_id"], name: "index_users_roles_on_user_id"
   end
 
+  add_foreign_key "discussions", "channels"
+  add_foreign_key "discussions", "users"
+  add_foreign_key "replies", "discussions"
+  add_foreign_key "replies", "users"
 end
